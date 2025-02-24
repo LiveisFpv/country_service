@@ -1,0 +1,7 @@
+FROM golang:1.24
+
+COPY . .
+
+RUN go mod download
+
+ENTRYPOINT ["./migrate.sh" ]

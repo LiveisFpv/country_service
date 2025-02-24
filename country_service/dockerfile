@@ -1,0 +1,11 @@
+FROM golang:1.24
+
+WORKDIR /country_service
+
+COPY . .
+
+RUN go mod download
+
+RUN go build -o coun_service main/main.go
+
+CMD ["./coun_service"]

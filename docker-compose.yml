@@ -1,0 +1,63 @@
+services:
+  
+  country_service:
+    container_name: country_service
+    build:
+      context: ./country_service
+      dockerfile: dockerfile
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=0000
+      - DB_NAME=grpc_country_db
+      - GRPC_PORT=14000
+      - GRPC_TIMEOUT=24h
+    depends_on:
+      db:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    networks:
+      - grpc_network
+      - db_network
+  db:
+    container_name: country_db
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=0000
+      - POSTGRES_DB=grpc_country_db
+    volumes:
+      - db_data:/var/lib/postgresql/db_data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 5
+    networks:
+      - db_network
+  
+  migrator:
+    container_name: migrator
+    build:
+      context: ./db
+      dockerfile: dockerfile
+    environment:
+      - DB_USER=postgres
+      - DB_PASSWORD=0000
+      - DB_NAME=grpc_auth_db
+      - DB_PORT=5432
+      - DB_HOST=db
+    depends_on:
+      - db
+    networks:
+      - db_network
+
+volumes:
+  db_data:
+
+networks:
+  grpc_network:
+    external: true
+  db_network:
+    driver: bridge
