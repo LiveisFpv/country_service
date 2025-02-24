@@ -18,6 +18,8 @@ services:
         condition: service_healthy
       migrator:
         condition: service_completed_successfully
+    ports:
+      - 14000:14000
     networks:
       - grpc_network
       - db_network
@@ -38,14 +40,14 @@ services:
       - db_network
   
   migrator:
-    container_name: migrator
+    container_name: migrator_country
     build:
       context: ./db
       dockerfile: dockerfile
     environment:
       - DB_USER=postgres
       - DB_PASSWORD=0000
-      - DB_NAME=grpc_auth_db
+      - DB_NAME=grpc_country_db
       - DB_PORT=5432
       - DB_HOST=db
     depends_on:

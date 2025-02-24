@@ -1,5 +1,7 @@
 FROM golang:1.24
 
+WORKDIR /migrator
+
 COPY . .
 
 RUN go mod download

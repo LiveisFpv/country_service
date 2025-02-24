@@ -23,4 +23,5 @@ func main() {
 
 func setupLogger(env string) *logrus.Logger {
 	//TODO init logger in local, dev, prod level
+	return nil
 }
