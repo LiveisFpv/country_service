@@ -24,8 +24,10 @@ type Country interface {
 	) (countries []*models.Country, err error)
 	Add_Country(
 		ctx context.Context,
-		country *models.Country,
-	) (country_id int, err error)
+		country_title string,
+		country_capital string,
+		country_area string,
+	) (country *models.Country, err error)
 	Update_CountrybyID(
 		ctx context.Context,
 		country *models.Country,
