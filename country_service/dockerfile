@@ -2,10 +2,12 @@ FROM golang:1.24
 
 WORKDIR /country_service
 
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+
 COPY . .
 
 RUN go mod download
 
-RUN go build -o coun_service main/main.go
+RUN go build -gcflags "all=-N -l" -o coun_service main/main.go
 
-CMD ["./coun_service"]
+CMD ["dlv","exec", "./coun_service","--headless", "--listen=:40000","--api-version=2","--accept-multiclient"]

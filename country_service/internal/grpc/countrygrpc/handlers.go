@@ -10,10 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *serverAPI) GetCountrybyID(
-	ctx context.Context,
-	req *country_v1.Get_CountryById_Request,
-) (*country_v1.Get_CountryById_Response, error) {
+func (s *serverAPI) Get_CountryById(ctx context.Context, req *country_v1.Get_CountryById_Request) (*country_v1.Get_CountryById_Response, error) {
 	if req.CountryId < 1 {
 		return nil, status.Error(codes.InvalidArgument, "country_id is required")
 	}
@@ -24,7 +21,7 @@ func (s *serverAPI) GetCountrybyID(
 		return nil, status.Error(codes.NotFound, fmt.Sprint(err))
 	}
 	return &country_v1.Get_CountryById_Response{
-		CountryId: int64(country.Country_id),
+		CountryId:      int64(country.Country_id),
 		CountryTitle:   country.Country_title,
 		CountryCapital: country.Country_capital,
 		CountryArea:    country.Country_area,
@@ -42,7 +39,7 @@ func (s *serverAPI) Get_All_Country(
 	for _, country := range countries {
 		resp.Countries = append(resp.Countries,
 			&country_v1.Get_CountryById_Response{
-				CountryId: int64(country.Country_id),
+				CountryId:      int64(country.Country_id),
 				CountryTitle:   country.Country_title,
 				CountryCapital: country.Country_capital,
 				CountryArea:    country.Country_area,
@@ -55,7 +52,7 @@ func (s *serverAPI) Get_All_Country(
 func (s *serverAPI) Add_Country(
 	ctx context.Context,
 	req *country_v1.Add_Country_Request,
-)(*country_v1.Add_Country_Response, error) {
+) (*country_v1.Add_Country_Response, error) {
 
 	if len(req.CountryTitle) <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "Country Title is required")
@@ -77,13 +74,13 @@ func (s *serverAPI) Add_Country(
 	return &country_v1.Add_Country_Response{
 		CountryId: int64(country.Country_id),
 	}, nil
-	
+
 }
 
-func (s *serverAPI) Update_CountrybyID(
+func (s *serverAPI) Update_CountryById(
 	ctx context.Context,
 	req *country_v1.Update_CountryById_Request,
-)(*country_v1.Update_CountryById_Response, error){
+) (*country_v1.Update_CountryById_Response, error) {
 	if req.CountryId < 1 {
 		return nil, status.Error(codes.InvalidArgument, "country_id is required")
 	}
@@ -100,10 +97,10 @@ func (s *serverAPI) Update_CountrybyID(
 	}
 
 	country := &models.Country{
-		Country_id: int(req.CountryId),
-		Country_title: req.CountryTitle,
+		Country_id:      int(req.CountryId),
+		Country_title:   req.CountryTitle,
 		Country_capital: req.CountryCapital,
-		Country_area: req.CountryArea,
+		Country_area:    req.CountryArea,
 	}
 	err := s.country.Update_CountrybyID(ctx, country)
 	if err != nil {
@@ -122,11 +119,11 @@ func (s *serverAPI) Update_CountrybyID(
 		CountryArea:    updated_country.Country_area,
 	}, nil
 }
- 
-func (s *serverAPI) Delete_CountrybyID(
+
+func (s *serverAPI) Delete_CountryById(
 	ctx context.Context,
 	req *country_v1.Delete_CountryById_Request,
-)(*country_v1.Delete_CountryById_Response, error){
+) (*country_v1.Delete_CountryById_Response, error) {
 	if req.CountryId < 1 {
 		return nil, status.Error(codes.InvalidArgument, "country_id is required")
 	}
@@ -144,6 +141,6 @@ func (s *serverAPI) Delete_CountrybyID(
 	}
 
 	return &country_v1.Delete_CountryById_Response{
-		CountryTitle:   country.Country_title,
+		CountryTitle: country.Country_title,
 	}, nil
 }
