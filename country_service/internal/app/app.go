@@ -11,8 +11,8 @@ import (
 )
 
 type App struct {
-	gRPCServer *countrygrpc.App
-	storage    storage.Repository
+	GRPCServer *countrygrpc.App
+	Storage    storage.Repository
 }
 
 // Constructor APP creates gRPCServer, storage
@@ -34,7 +34,7 @@ func New(
 	grpcApp := countrygrpc.New(log, countryService, grpcPort)
 
 	return &App{
-		gRPCServer: grpcApp,
-		storage:    storage,
+		GRPCServer: grpcApp,
+		Storage:    storage,
 	}
 }

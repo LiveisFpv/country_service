@@ -35,6 +35,7 @@ type Repository interface {
 	CreateCountry(ctx context.Context, country_title, country_capital, country_area string) (country *models.Country, err error)
 	UpdateCountrybyID(ctx context.Context, country *models.Country) (err error)
 	DeleteCountrybyID(ctx context.Context, country_id int) (err error)
+	Stop()
 }
 
 func NewStorage(ctx context.Context, dsn string, log *logrus.Logger) (Repository, error) {
@@ -50,4 +51,8 @@ func NewStorage(ctx context.Context, dsn string, log *logrus.Logger) (Repository
 	}
 
 	return NewRepository(pool, log), nil
+}
+
+func (r *repo) Stop() {
+	r.Queries.Stop()
 }

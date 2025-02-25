@@ -1,27 +1,50 @@
 package main
 
-import "github.com/sirupsen/logrus"
+import (
+	"context"
+	"country_service/internal/app"
+	"country_service/internal/config"
+	"os"
+	"os/signal"
+	"syscall"
 
-const (
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
+	"github.com/sirupsen/logrus"
 )
 
-//TODO start microservice
+// TODO start microservice
 func main() {
 	//TODO init config obj
+	cfg := config.MustLoad()
 
 	//TODO init logger
+	//if need more opt make create in lib/logger
+	log := setupLogger()
 
 	//TODO init app
+	ctx := context.Background()
+	app := app.New(ctx, log, cfg.GRPC.Port, cfg.Dsn, cfg.TokenTTL)
 
 	//TODO start grpc-Server
+	go func() {
+		app.GRPCServer.MustRun()
+	}()
 
 	//TODO graceful shutdown
+	// Graceful shutdown
+	stop := make(chan os.Signal, 1)
+
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+	// Waiting for SIGINT (pkill -2) or SIGTERM
+	<-stop
+	// initiate graceful shutdown
+	app.GRPCServer.Stop()
+	log.Info("GRPCserver stopped")
+	app.Storage.Stop()
+	log.Info("Postgres connection closed")
 }
 
-func setupLogger(env string) *logrus.Logger {
-	//TODO init logger in local, dev, prod level
-	return nil
+func setupLogger() *logrus.Logger {
+	log := &logrus.Logger{}
+	log.SetFormatter(&logrus.JSONFormatter{})
+	return log
 }
