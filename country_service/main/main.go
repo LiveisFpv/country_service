@@ -23,7 +23,7 @@ func main() {
 	//TODO init app
 	ctx := context.Background()
 	app := app.New(ctx, log, cfg.GRPC.Port, cfg.Dsn, cfg.TokenTTL)
-
+	log.Info("Start service")
 	//TODO start grpc-Server
 	go func() {
 		app.GRPCServer.MustRun()
@@ -44,7 +44,7 @@ func main() {
 }
 
 func setupLogger() *logrus.Logger {
-	log := &logrus.Logger{}
+	log := logrus.New()
 	log.SetFormatter(&logrus.JSONFormatter{})
 	return log
 }
