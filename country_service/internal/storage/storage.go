@@ -28,7 +28,6 @@ func NewRepository(
 	}
 }
 
-// TODO test sql statements
 // Func for work with DB
 type Repository interface {
 	GetCountrybyID(ctx context.Context, country_id int) (country *models.Country, err error)
@@ -52,6 +51,3 @@ func NewStorage(ctx context.Context, dsn string, log *logrus.Logger) (Repository
 
 	return NewRepository(pool, log), nil
 }
-
-// Пока пользуемся принципом PDD
-// CreateCountry implements Repository.
