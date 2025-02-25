@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"country_service/internal/grpc/countrygrpc"
+	"country_service/internal/services/country"
 	"country_service/internal/storage"
 	"time"
 
@@ -28,7 +29,7 @@ func New(
 	}
 
 	//Todo service
-	countryService := nil
+	countryService := country.New(log, storage, tokenTTL)
 
 	grpcApp := countrygrpc.New(log, countryService, grpcPort)
 
