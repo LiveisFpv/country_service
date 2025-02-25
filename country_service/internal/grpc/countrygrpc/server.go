@@ -13,6 +13,7 @@ type serverAPI struct {
 	country Country
 }
 
+// Methods needed for handlers on Service
 type Country interface {
 	Get_CountrybyID(
 		ctx context.Context,

@@ -11,7 +11,7 @@ import (
 
 func (s *serverAPI) GetCountrybyID(
 	ctx context.Context,
-	req country_v1.Get_CountryById_Requset,
+	req *country_v1.Get_CountryById_Requset,
 ) (*country_v1.Get_CountryById_Response, error) {
 	if req.CountryId < 1 {
 		return nil, status.Error(codes.InvalidArgument, "country_id is required")
@@ -27,4 +27,24 @@ func (s *serverAPI) GetCountrybyID(
 		CountryCapital: country.Country_capital,
 		CountryArea:    country.Country_area,
 	}, nil
+}
+func (s *serverAPI) Get_All_Country(
+	ctx context.Context,
+	req *country_v1.Get_All_Country_Request,
+) (*country_v1.Get_All_Country_Response, error) {
+	countries, err := s.country.Get_All_Country(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Internal, fmt.Sprint(err))
+	}
+	resp := &country_v1.Get_All_Country_Response{}
+	for _, country := range *countries {
+		resp.Countries = append(resp.Countries,
+			&country_v1.Get_CountryById_Response{
+				CountryTitle:   country.Country_title,
+				CountryCapital: country.Country_capital,
+				CountryArea:    country.Country_area,
+			},
+		)
+	}
+	return resp, nil
 }
