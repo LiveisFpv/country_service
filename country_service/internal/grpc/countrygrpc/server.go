@@ -21,7 +21,7 @@ type Country interface {
 	) (country *models.Country, err error)
 	Get_All_Country(
 		ctx context.Context,
-	) (countries *[]models.Country, err error)
+	) (countries []*models.Country, err error)
 	Add_Country(
 		ctx context.Context,
 		country *models.Country,
