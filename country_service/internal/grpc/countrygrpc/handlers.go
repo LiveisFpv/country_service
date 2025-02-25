@@ -12,7 +12,7 @@ import (
 
 func (s *serverAPI) GetCountrybyID(
 	ctx context.Context,
-	req *country_v1.Get_CountryById_Requset,
+	req *country_v1.Get_CountryById_Request,
 ) (*country_v1.Get_CountryById_Response, error) {
 	if req.CountryId < 1 {
 		return nil, status.Error(codes.InvalidArgument, "country_id is required")
@@ -24,6 +24,7 @@ func (s *serverAPI) GetCountrybyID(
 		return nil, status.Error(codes.NotFound, fmt.Sprint(err))
 	}
 	return &country_v1.Get_CountryById_Response{
+		CountryId: int64(country.Country_id),
 		CountryTitle:   country.Country_title,
 		CountryCapital: country.Country_capital,
 		CountryArea:    country.Country_area,
@@ -41,6 +42,7 @@ func (s *serverAPI) Get_All_Country(
 	for _, country := range countries {
 		resp.Countries = append(resp.Countries,
 			&country_v1.Get_CountryById_Response{
+				CountryId: int64(country.Country_id),
 				CountryTitle:   country.Country_title,
 				CountryCapital: country.Country_capital,
 				CountryArea:    country.Country_area,
@@ -98,10 +100,10 @@ func (s *serverAPI) Update_CountrybyID(
 	}
 
 	country := &models.Country{
-		int(req.CountryId),
-		req.CountryTitle,
-		req.CountryCapital,
-		req.CountryArea,
+		Country_id: int(req.CountryId),
+		Country_title: req.CountryTitle,
+		Country_capital: req.CountryCapital,
+		Country_area: req.CountryArea,
 	}
 	err := s.country.Update_CountrybyID(ctx, country)
 	if err != nil {
