@@ -37,7 +37,7 @@ func (s *serverAPI) Get_All_Country(
 		return nil, status.Error(codes.Internal, fmt.Sprint(err))
 	}
 	resp := &country_v1.Get_All_Country_Response{}
-	for _, country := range *countries {
+	for _, country := range countries {
 		resp.Countries = append(resp.Countries,
 			&country_v1.Get_CountryById_Response{
 				CountryTitle:   country.Country_title,
