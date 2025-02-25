@@ -23,7 +23,7 @@ type App struct {
 // func to func in the func translate logging.Logger to logrus
 func InterceptorLogger(l *logrus.Logger) logging.Logger {
 	return logging.LoggerFunc(func(ctx context.Context, lvl logging.Level, msg string, fields ...any) {
-		l.Log(logrus.Level(lvl), msg)
+		l.Log(logrus.Level(lvl), msg, fields)
 	})
 }
 
