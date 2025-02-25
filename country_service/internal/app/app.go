@@ -1,18 +1,39 @@
 package app
 
 import (
-	"country_service/internal/services/country"
-	postgresql "country_service/internal/storage/postgreSQL"
+	"context"
+	"country_service/internal/grpc/countrygrpc"
+	"country_service/internal/storage"
+	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type App struct {
-	gRPCServer *country.Server
-	storage    postgresql.Repository
+	gRPCServer *countrygrpc.App
+	storage    storage.Repository
 }
 
-func NewApp(storage postgresql.Repository, gRPCServer *country.Server) {
+// Constructor APP creates gRPCServer, storage
+func New(
+	ctx context.Context,
+	log *logrus.Logger,
+	grpcPort int,
+	dsn string,
+	tokenTTL time.Duration,
+) *App {
+	storage, err := storage.NewStorage(ctx, dsn, log)
+	if err != nil {
+		panic(err)
+	}
+
+	//Todo service
+	countryService := nil
+
+	grpcApp := countrygrpc.New(log, countryService, grpcPort)
+
 	return &App{
-		gRPCServer: gRPCServer,
+		gRPCServer: grpcApp,
 		storage:    storage,
 	}
 }

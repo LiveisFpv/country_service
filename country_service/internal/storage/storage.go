@@ -1,8 +1,10 @@
 package storage
 
 import (
+	"context"
 	"country_service/internal/domain/models"
 	postgresql "country_service/internal/storage/postgreSQL"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
@@ -58,4 +60,19 @@ func (r *repo) GetCountrybyID(country_id int) (country *models.Country, err erro
 // UpdateCountrybyID implements Repository.
 func (r *repo) UpdateCountrybyID(country *models.Country) (err error) {
 	panic("unimplemented")
+}
+
+func NewStorage(ctx context.Context, dsn string, log *logrus.Logger) (Repository, error) {
+	pool, err := pgxpool.New(ctx, dsn)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	// Проверяем подключение
+	if err := pool.Ping(ctx); err != nil {
+		pool.Close()
+		return nil, fmt.Errorf("database ping failed: %w", err)
+	}
+
+	return NewRepository(pool, log), nil
 }
