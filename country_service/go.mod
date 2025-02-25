@@ -3,7 +3,7 @@ module country_service
 go 1.24.0
 
 require (
-	github.com/LiveisFpv/country_v1 v0.1.2
+	github.com/LiveisFpv/country_v1 v0.1.4
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.0
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/sirupsen/logrus v1.9.3

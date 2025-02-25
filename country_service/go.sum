@@ -1,5 +1,7 @@
 github.com/LiveisFpv/country_v1 v0.1.2 h1:Xer4l5ZzoHyneh5AEaWKjUtLJB/HnBQbuD79JUkV/cM=
 github.com/LiveisFpv/country_v1 v0.1.2/go.mod h1:kyx6Vq4nuTRHOu2LACvkcj5V2pJXKL6ArGzQTLJCP6w=
+github.com/LiveisFpv/country_v1 v0.1.4 h1:il5EJShzkZ0TYaa0xgOPtcSINph1IX+udJpc3FvANes=
+github.com/LiveisFpv/country_v1 v0.1.4/go.mod h1:kyx6Vq4nuTRHOu2LACvkcj5V2pJXKL6ArGzQTLJCP6w=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
