@@ -29,36 +29,36 @@ func NewRepository(
 // TODO sql statement and func
 // Func for work with DB
 type Repository interface {
-	GetCountrybyID(country_id int) (country *models.Country, err error)
-	GetAllCountry() (countries *[]models.Country, err error)
-	CreateCountry(country *models.Country) (country_id int, err error)
-	UpdateCountrybyID(country *models.Country) (err error)
-	DeleteCountrybyID(country_id int) (err error)
+	GetCountrybyID(ctx context.Context, country_id int) (country *models.Country, err error)
+	GetAllCountry(ctx context.Context) (countries *[]models.Country, err error)
+	CreateCountry(ctx context.Context, country *models.Country) (country_id int, err error)
+	UpdateCountrybyID(ctx context.Context, country *models.Country) (err error)
+	DeleteCountrybyID(ctx context.Context, country_id int) (err error)
 }
 
 // Пока пользуемся принципом PDD
 // CreateCountry implements Repository.
-func (r *repo) CreateCountry(country *models.Country) (country_id int, err error) {
+func (r *repo) CreateCountry(ctx context.Context, country *models.Country) (country_id int, err error) {
 	panic("unimplemented")
 }
 
 // DeleteCountrybyID implements Repository.
-func (r *repo) DeleteCountrybyID(country_id int) (err error) {
+func (r *repo) DeleteCountrybyID(ctx context.Context, country_id int) (err error) {
 	panic("unimplemented")
 }
 
 // GetAllCountry implements Repository.
-func (r *repo) GetAllCountry() (countries *[]models.Country, err error) {
+func (r *repo) GetAllCountry(ctx context.Context) (countries *[]models.Country, err error) {
 	panic("unimplemented")
 }
 
 // GetCountrybyID implements Repository.
-func (r *repo) GetCountrybyID(country_id int) (country *models.Country, err error) {
+func (r *repo) GetCountrybyID(ctx context.Context, country_id int) (country *models.Country, err error) {
 	panic("unimplemented")
 }
 
 // UpdateCountrybyID implements Repository.
-func (r *repo) UpdateCountrybyID(country *models.Country) (err error) {
+func (r *repo) UpdateCountrybyID(ctx context.Context, country *models.Country) (err error) {
 	panic("unimplemented")
 }
 
