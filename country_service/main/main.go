@@ -25,9 +25,10 @@ func main() {
 	app := app.New(ctx, log, cfg.GRPC.Port, cfg.Dsn, cfg.TokenTTL)
 	log.Info("Start service")
 	//TODO start grpc-Server
- go func(){
-	 app.GRPCServer.MustRun()
- }
+	go func() {
+		app.GRPCServer.MustRun()
+	}()
+
 	//TODO graceful shutdown
 	// Graceful shutdown
 	stop := make(chan os.Signal, 1)
