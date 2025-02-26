@@ -20,7 +20,6 @@ services:
         condition: service_completed_successfully
     ports:
       - 14000:14000
-      - 40000:40000
     networks:
       - grpc_network
       - db_network

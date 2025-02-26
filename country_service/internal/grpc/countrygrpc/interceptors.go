@@ -1,11 +1,11 @@
 package countrygrpc
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"net"
 
+	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"github.com/sirupsen/logrus"
@@ -20,15 +20,11 @@ type App struct {
 	port       int
 }
 
-// func to func in the func translate logging.Logger to logrus
-func InterceptorLogger(l *logrus.Logger) logging.Logger {
-	return logging.LoggerFunc(func(ctx context.Context, lvl logging.Level, msg string, fields ...any) {
-		l.Log(logrus.Level(lvl), msg, fields)
-	})
-}
-
+// TODO create logger
 // App constructor with logger and Service
 func New(log *logrus.Logger, country_Service Country, port int) *App {
+	logrusEntry := logrus.NewEntry(log)
+	grpc_logrus.ReplaceGrpcLogger(logrusEntry)
 
 	recoverOpts := []recovery.Option{
 		recovery.WithRecoveryHandler(
@@ -46,10 +42,11 @@ func New(log *logrus.Logger, country_Service Country, port int) *App {
 			logging.PayloadReceived, logging.PayloadSent,
 		),
 	}
+	loggingOpts = loggingOpts
 	//Create grpcServer with interseptors(logger, recover)
 	gRPCServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
 		recovery.UnaryServerInterceptor(recoverOpts...),
-		logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),
+		// logging.UnaryServerInterceptor(logrusEntry, loggingOpts...),
 	))
 
 	//Тута и мне осознать надо
