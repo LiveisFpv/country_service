@@ -6,6 +6,6 @@ COPY . .
 
 RUN go mod download
 
-RUN go build -o coun_service main/main.go
+RUN go build -o coun_service cmd/main.go
 
 CMD ["./coun_service"]
