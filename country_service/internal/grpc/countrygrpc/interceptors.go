@@ -1,12 +1,12 @@
 package countrygrpc
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
 
-	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	grpclog "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -23,8 +23,6 @@ type App struct {
 // TODO create logger
 // App constructor with logger and Service
 func New(log *logrus.Logger, country_Service Country, port int) *App {
-	logrusEntry := logrus.NewEntry(log)
-	grpc_logrus.ReplaceGrpcLogger(logrusEntry)
 
 	recoverOpts := []recovery.Option{
 		recovery.WithRecoveryHandler(
@@ -37,16 +35,15 @@ func New(log *logrus.Logger, country_Service Country, port int) *App {
 	}
 
 	//logging all, logging data, loggind payload, user didnt know that we know
-	loggingOpts := []logging.Option{
-		logging.WithLogOnEvents(
-			logging.PayloadReceived, logging.PayloadSent,
+	loggingOpts := []grpclog.Option{
+		grpclog.WithLogOnEvents(
+			grpclog.PayloadReceived, grpclog.PayloadSent,
 		),
 	}
-	loggingOpts = loggingOpts
 	//Create grpcServer with interseptors(logger, recover)
 	gRPCServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
 		recovery.UnaryServerInterceptor(recoverOpts...),
-		// logging.UnaryServerInterceptor(logrusEntry, loggingOpts...),
+		grpclog.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),
 	))
 
 	//Тута и мне осознать надо
@@ -57,6 +54,26 @@ func New(log *logrus.Logger, country_Service Country, port int) *App {
 		gRPCServer: gRPCServer,
 		port:       port,
 	}
+}
+
+func InterceptorLogger(l *logrus.Logger) grpclog.Logger {
+	return grpclog.LoggerFunc(func(ctx context.Context, lvl grpclog.Level, msg string, fields ...any) {
+		var logrusLevel logrus.Level
+		switch lvl {
+		case grpclog.LevelDebug:
+			logrusLevel = logrus.DebugLevel
+		case grpclog.LevelInfo:
+			logrusLevel = logrus.InfoLevel
+		case grpclog.LevelWarn:
+			logrusLevel = logrus.WarnLevel
+		case grpclog.LevelError:
+			logrusLevel = logrus.ErrorLevel
+		default:
+			logrusLevel = logrus.InfoLevel
+		}
+
+		l.WithFields(logrus.Fields{"details": fields}).Log(logrusLevel, msg)
+	})
 }
 
 // Start gRPC server
