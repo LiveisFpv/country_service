@@ -4,11 +4,10 @@ import (
 	"context"
 	"country_service/internal/app"
 	"country_service/internal/config"
+	"country_service/internal/lib/logger"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/sirupsen/logrus"
 )
 
 // TODO start microservice
@@ -18,7 +17,7 @@ func main() {
 
 	//TODO init logger
 	//if need more opt make create in lib/logger
-	log := setupLogger()
+	log := logger.LoggerSetup(true)
 
 	//TODO init app
 	ctx := context.Background()
@@ -41,10 +40,4 @@ func main() {
 	log.Info("GRPCserver stopped")
 	app.Storage.Stop()
 	log.Info("Postgres connection closed")
-}
-
-func setupLogger() *logrus.Logger {
-	log := logrus.New()
-	log.SetFormatter(&logrus.JSONFormatter{})
-	return log
 }
