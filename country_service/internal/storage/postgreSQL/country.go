@@ -36,12 +36,13 @@ func (r *Queries) DeleteCountrybyID(ctx context.Context, country_id int) (err er
 }
 
 // GetAllCountry implements Repository.
-func (r *Queries) GetAllCountry(ctx context.Context) (countries []*models.Country, err error) {
+func (r *Queries) GetAllCountry(ctx context.Context, pagination *models.Pagination, filters []*models.Filter, orderbies []*models.OrderBy) (countries []*models.Country, paginate *models.Pagination, err error) {
 	sqlStatement := `SELECT * FROM country`
 
+	//TODO filter, paginate, orderby before
 	rows, err := r.pool.Query(ctx, sqlStatement)
 	if err != nil {
-		return nil, fmt.Errorf("can`t query country list: %w", err)
+		return nil, nil, fmt.Errorf("can`t query country list: %w", err)
 	}
 
 	for rows.Next() {
@@ -53,16 +54,16 @@ func (r *Queries) GetAllCountry(ctx context.Context) (countries []*models.Countr
 			&country.Country_area,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("can`t process query result: %w", err)
+			return nil, nil, fmt.Errorf("can`t process query result: %w", err)
 		}
 		countries = append(countries, country)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return countries, err
+	return countries, paginate, err
 }
 
 // GetCountrybyID implements Repository.

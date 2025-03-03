@@ -21,7 +21,10 @@ type Country interface {
 	) (country *models.Country, err error)
 	Get_All_Country(
 		ctx context.Context,
-	) (countries []*models.Country, err error)
+		pagination *models.Pagination,
+		filters []*models.Filter,
+		orderbies []*models.OrderBy,
+	) (countries []*models.Country, paginate *models.Pagination, err error)
 	Add_Country(
 		ctx context.Context,
 		country_title string,

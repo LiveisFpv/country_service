@@ -27,11 +27,32 @@ func (s *serverAPI) Get_CountryById(ctx context.Context, req *country_v1.Get_Cou
 		CountryArea:    country.Country_area,
 	}, nil
 }
+
+// TODO Pag,Sort,Filter
 func (s *serverAPI) Get_All_Country(
 	ctx context.Context,
 	req *country_v1.Get_All_Country_Request,
 ) (*country_v1.Get_All_Country_Response, error) {
-	countries, err := s.country.Get_All_Country(ctx)
+	pagination := &models.Pagination{
+		Current: int(req.Pagination.Current),
+		Limit:   int(req.Pagination.Limit),
+		Total:   int(req.Pagination.Total),
+	}
+	filters := []*models.Filter{}
+	for _, filter := range req.Filters {
+		filters = append(filters, &models.Filter{
+			Field: filter.Field,
+			Value: filter.Value,
+		})
+	}
+	orderbies := []*models.OrderBy{}
+	for _, orderby := range req.Orderby {
+		orderbies = append(orderbies, &models.OrderBy{
+			Field:     orderby.Field,
+			Direction: orderby.Direction,
+		})
+	}
+	countries, paginate, err := s.country.Get_All_Country(ctx, pagination, filters, orderbies)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Sprint(err))
 	}
@@ -46,6 +67,9 @@ func (s *serverAPI) Get_All_Country(
 			},
 		)
 	}
+	resp.Pagination.Current = int64(paginate.Current)
+	resp.Pagination.Limit = int64(paginate.Limit)
+	resp.Pagination.Total = int64(paginate.Total)
 	return resp, nil
 }
 
@@ -141,6 +165,8 @@ func (s *serverAPI) Delete_CountryById(
 	}
 
 	return &country_v1.Delete_CountryById_Response{
-		CountryTitle: country.Country_title,
+		CountryTitle:   country.Country_title,
+		CountryCapital: country.Country_capital,
+		CountryArea:    country.Country_area,
 	}, nil
 }
