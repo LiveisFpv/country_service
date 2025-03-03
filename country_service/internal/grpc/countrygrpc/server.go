@@ -21,7 +21,13 @@ type Country interface {
 	) (country *models.Country, err error)
 	Get_All_Country(
 		ctx context.Context,
-	) (countries []*models.Country, err error)
+		pagination *models.Pagination,
+		filter []*models.Filter,
+		orderby []*models.Sort,
+	) (
+		countries []*models.Country, 
+		new_pagination *models.Pagination,
+		err error)
 	Add_Country(
 		ctx context.Context,
 		country_title string,
@@ -35,7 +41,7 @@ type Country interface {
 	Delete_CountrybyID(
 		ctx context.Context,
 		country_id int,
-	) (err error)
+	) (country *models.Country, err error)
 }
 
 // It how constructor but not constructor:В

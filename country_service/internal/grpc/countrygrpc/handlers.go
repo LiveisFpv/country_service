@@ -31,11 +31,40 @@ func (s *serverAPI) Get_All_Country(
 	ctx context.Context,
 	req *country_v1.Get_All_Country_Request,
 ) (*country_v1.Get_All_Country_Response, error) {
-	countries, err := s.country.Get_All_Country(ctx)
+	pagination := models.Pagination{
+		Limit: int(req.Pagination.Limit),
+		Current: int(req.Pagination.Current),
+		Total: 0,
+	}
+
+	filter := []*models.Filter{}
+	for _, reqFilter := range req.Filters{
+		filter = append(filter, &models.Filter{
+			Field: reqFilter.Field,
+			Value: reqFilter.Value,
+		})
+	}
+
+	orderby := []*models.Sort{}
+	for _, reqOrder := range req.Orderby{
+		orderby = append(orderby, &models.Sort{
+			By: reqOrder.Field,
+			Direction: reqOrder.Direction,
+		})
+	}
+
+	countries, new_pagination, err := s.country.Get_All_Country(ctx, &pagination, filter, orderby)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Sprint(err))
 	}
-	resp := &country_v1.Get_All_Country_Response{}
+
+	resp := &country_v1.Get_All_Country_Response{
+		Pagination: &country_v1.Pagination{
+			Current: int64(new_pagination.Current),
+			Total: int64(new_pagination.Total),
+			Limit: int64(new_pagination.Limit),
+		},
+	}
 	for _, country := range countries {
 		resp.Countries = append(resp.Countries,
 			&country_v1.Get_CountryById_Response{
@@ -46,6 +75,7 @@ func (s *serverAPI) Get_All_Country(
 			},
 		)
 	}
+
 	return resp, nil
 }
 
@@ -127,20 +157,14 @@ func (s *serverAPI) Delete_CountryById(
 	if req.CountryId < 1 {
 		return nil, status.Error(codes.InvalidArgument, "country_id is required")
 	}
-
-	// Скозали вернуть название, ну я и верну
-	// а query лучше лишний раз не трогать
-	country, err := s.country.Get_CountrybyID(ctx, int(req.CountryId))
-	if err != nil {
-		return nil, status.Error(codes.NotFound, fmt.Sprint(err))
-	}
-
-	err = s.country.Delete_CountrybyID(ctx, int(req.CountryId))
+	res, err := s.country.Delete_CountrybyID(ctx, int(req.CountryId))
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Sprint(err))
 	}
 
 	return &country_v1.Delete_CountryById_Response{
-		CountryTitle: country.Country_title,
+		CountryTitle: res.Country_title,
+		CountryCapital: res.Country_area,
+		CountryArea: res.Country_area,
 	}, nil
 }

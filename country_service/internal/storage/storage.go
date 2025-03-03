@@ -31,10 +31,10 @@ func NewRepository(
 // Func for work with DB
 type Repository interface {
 	GetCountrybyID(ctx context.Context, country_id int) (country *models.Country, err error)
-	GetAllCountry(ctx context.Context) (countries []*models.Country, err error)
+	GetAllCountry(ctx context.Context, pagination *models.Pagination, filter []*models.Filter, orderby []*models.Sort) ([]*models.Country, *models.Pagination, error)
 	CreateCountry(ctx context.Context, country_title, country_capital, country_area string) (country *models.Country, err error)
 	UpdateCountrybyID(ctx context.Context, country *models.Country) (err error)
-	DeleteCountrybyID(ctx context.Context, country_id int) (err error)
+	DeleteCountrybyID(ctx context.Context, country_id int) (country *models.Country, err error)
 	Stop()
 }
 

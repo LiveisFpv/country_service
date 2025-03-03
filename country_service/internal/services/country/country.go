@@ -8,15 +8,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//TODO translate requset from handlers to db
-
 // All methods
 type CountryStorage interface {
 	GetCountrybyID(ctx context.Context, country_id int) (country *models.Country, err error)
-	GetAllCountry(ctx context.Context) (countries []*models.Country, err error)
+	GetAllCountry(ctx context.Context, pagination *models.Pagination, filter []*models.Filter, orderby []*models.Sort) ([]*models.Country, *models.Pagination, error)
 	CreateCountry(ctx context.Context, country_title, country_capital, country_area string) (country *models.Country, err error)
 	UpdateCountrybyID(ctx context.Context, country *models.Country) (err error)
-	DeleteCountrybyID(ctx context.Context, country_id int) (err error)
+	DeleteCountrybyID(ctx context.Context, country_id int) (country *models.Country, err error)
 }
 
 type CountryService struct {
@@ -39,13 +37,7 @@ func New(
 }
 
 // Add_Country implements countrygrpc.Country.
-func (c *CountryService) Add_Country(
-	ctx context.Context,
-	country_title,
-	country_capital,
-	country_area string) (
-	country *models.Country,
-	err error) {
+func (c *CountryService) Add_Country(ctx context.Context, country_title, country_capital, country_area string) (country *models.Country, err error) {
 	const op = "Country.Create"
 	log := c.log.WithFields(
 		logrus.Fields{
@@ -67,7 +59,7 @@ func (c *CountryService) Add_Country(
 }
 
 // Delete_CountrybyID implements countrygrpc.Country.
-func (c *CountryService) Delete_CountrybyID(ctx context.Context, country_id int) (err error) {
+func (c *CountryService) Delete_CountrybyID(ctx context.Context, country_id int) (*models.Country, error) {
 	const op = "Country.Delete"
 	log := c.log.WithFields(
 		logrus.Fields{
@@ -76,17 +68,16 @@ func (c *CountryService) Delete_CountrybyID(ctx context.Context, country_id int)
 		},
 	)
 	log.Info("Start Delete Country")
-
-	err = c.countryStorage.DeleteCountrybyID(ctx, country_id)
+	res, err := c.countryStorage.DeleteCountrybyID(ctx, country_id)
 	if err != nil {
 		c.log.Error("failed to delete country", err)
-		return err
+		return nil, err
 	}
-	return nil
+	return res, nil
 }
 
 // Get_All_Country implements countrygrpc.Country.
-func (c *CountryService) Get_All_Country(ctx context.Context) (countries []*models.Country, err error) {
+func (c *CountryService) Get_All_Country(ctx context.Context, pagination *models.Pagination, filter []*models.Filter, orderby []*models.Sort) ([]*models.Country, *models.Pagination, error){
 	const op = "Country.GetAll"
 	log := c.log.WithFields(
 		logrus.Fields{
@@ -95,13 +86,13 @@ func (c *CountryService) Get_All_Country(ctx context.Context) (countries []*mode
 	)
 	log.Info("Start Get ALL Country")
 
-	countries, err = c.countryStorage.GetAllCountry(ctx)
+	countries, new_pagination, err := c.countryStorage.GetAllCountry(ctx, pagination, filter, orderby)
 	if err != nil {
 		c.log.Error("failed to get all countries", err)
-		return nil, err
+		return nil, nil, err
 	}
 
-	return countries, nil
+	return countries, new_pagination, nil
 }
 
 // Get_CountrybyID implements countrygrpc.Country.

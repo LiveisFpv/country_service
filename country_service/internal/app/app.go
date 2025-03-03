@@ -30,7 +30,6 @@ func New(
 
 	//Todo service
 	countryService := country.New(log, storage, tokenTTL)
-
 	grpcApp := countrygrpc.New(log, countryService, grpcPort)
 
 	return &App{

@@ -6,6 +6,28 @@ import (
 	"fmt"
 )
 
+func unpackFilter(ctx context.Context, baseQuery string, filters []*models.Filter)(filteredQuery string){
+	for _, filter := range filters{
+		baseQuery += fmt.Sprintf(" AND %s = %d", filter.Field, filter.Value)
+	}
+	return baseQuery
+}
+
+func unpackOrder(ctx context.Context, baseQuery string, orderby []*models.Sort)(orderedQuery string){
+	if (len(orderby) > 0){
+		// Начинаем сортировку
+		baseQuery += " ORDER BY"
+		for i, order := range orderby{
+			if (i > 0){
+				// После первого элемента каждый идет через запятую
+				baseQuery += ", "
+			}
+			baseQuery += fmt.Sprintf("%s %s", order.By, order.Direction)
+		}
+	}
+	return baseQuery
+}
+
 func (r *Queries) CreateCountry(ctx context.Context, country_title, country_capital, country_area string) (country *models.Country, err error) {
 	sqlStatement := `INSERT INTO country (country_title, country_capital, country_area) VALUES ($1, $2, $3) RETURNING country_id`
 
@@ -24,26 +46,45 @@ func (r *Queries) CreateCountry(ctx context.Context, country_title, country_capi
 }
 
 // DeleteCountrybyID implements Repository.
-func (r *Queries) DeleteCountrybyID(ctx context.Context, country_id int) (err error) {
-	sqlStatement := `DELETE FROM country WHERE country_id=$1`
+func (r *Queries) DeleteCountrybyID(ctx context.Context, country_id int) (country *models.Country, err error) {
+	sqlStatement := `DELETE FROM country WHERE country_id=$1 RETURNING country_title, country_capital, country_area`
 
-	_, err = r.pool.Exec(ctx, sqlStatement, country_id)
+
+	country = &models.Country{}
+	err = r.pool.QueryRow(ctx, sqlStatement, country_id).Scan(country.Country_title, country.Country_capital, country.Country_area)
 	if err != nil {
-		return fmt.Errorf("can`t delete country: %w", err)
+		return nil, fmt.Errorf("can`t delete country: %w", err)
 	}
 
-	return err
+	return country, err
 }
 
 // GetAllCountry implements Repository.
-func (r *Queries) GetAllCountry(ctx context.Context) (countries []*models.Country, err error) {
-	sqlStatement := `SELECT * FROM country`
-
-	rows, err := r.pool.Query(ctx, sqlStatement)
+func (r *Queries) GetAllCountry(ctx context.Context, pagination *models.Pagination, filter []*models.Filter, orderby []*models.Sort) ([]*models.Country, *models.Pagination, error) {
+	
+	
+	// Базовый запрос с фильтрацией
+	sqlStatement := `FROM country WHERE 1=1`
+	sqlStatement = unpackFilter(ctx, sqlStatement, filter)
+	
+	// Считаем количество запросов
+	err := r.pool.QueryRow(ctx, "SELECT COUNT(*) " + sqlStatement).Scan(pagination.Total)
 	if err != nil {
-		return nil, fmt.Errorf("can`t query country list: %w", err)
+		return nil, nil, fmt.Errorf("can`t query country list: %w", err)
+	}
+	// Проверяем условие, что мы можем удовлетворить хотя бы один запрос
+	offset := pagination.Limit * pagination.Current
+	if (offset >= pagination.Total){
+		// Нельзя просто взять и скипнуть БД
+		return nil, pagination, fmt.Errorf("requsted offset %d for %d records", offset, pagination.Total)
 	}
 
+	// Для микрооптимизации БД сортировать потом будем
+	sqlStatement = unpackOrder(ctx, sqlStatement, orderby)
+	sqlStatement = "SELECT * " + sqlStatement + fmt.Sprintf(" LIMIT %d OFFSET %d", pagination.Limit, offset)
+	rows, err := r.pool.Query(ctx, sqlStatement)
+
+	countries := []*models.Country{}
 	for rows.Next() {
 		country := &models.Country{}
 		err := rows.Scan(
@@ -53,16 +94,16 @@ func (r *Queries) GetAllCountry(ctx context.Context) (countries []*models.Countr
 			&country.Country_area,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("can`t process query result: %w", err)
+			return nil, pagination, fmt.Errorf("can`t process query result: %w", err)
 		}
 		countries = append(countries, country)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return countries, err
+	return countries, pagination, err
 }
 
 // GetCountrybyID implements Repository.
