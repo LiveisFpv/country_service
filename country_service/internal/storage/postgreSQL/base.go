@@ -22,7 +22,7 @@ func unpackOrder(ctx context.Context, baseQuery string, orderby []*models.Sort) 
 				// После первого элемента каждый идет через запятую
 				baseQuery += ", "
 			}
-			baseQuery += fmt.Sprintf("%s %s", order.By, order.Direction)
+			baseQuery += fmt.Sprintf("%s %s ", order.By, order.Direction)
 		}
 	}
 	return baseQuery
