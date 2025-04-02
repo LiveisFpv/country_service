@@ -40,7 +40,7 @@ func (r *Queries) DeleteCountrybyID(ctx context.Context, country_id int) (countr
 func (r *Queries) GetAllCountry(ctx context.Context, pagination *models.Pagination, filter []*models.Filter, orderby []*models.Sort) ([]*models.Country, *models.Pagination, error) {
 
 	// Базовый запрос с фильтрацией
-	sqlStatement := `FROM country WHERE 1=1`
+	sqlStatement := `FROM country WHERE 1=1 `
 	sqlStatement = unpackFilter(ctx, sqlStatement, filter)
 
 	// Считаем количество запросов
@@ -57,7 +57,7 @@ func (r *Queries) GetAllCountry(ctx context.Context, pagination *models.Paginati
 
 	// Для микрооптимизации БД сортировать потом будем
 	sqlStatement = unpackOrder(ctx, sqlStatement, orderby)
-	sqlStatement = "SELECT * " + sqlStatement + fmt.Sprintf(" LIMIT %d OFFSET %d", pagination.Limit, offset)
+	sqlStatement = "SELECT * " + sqlStatement + fmt.Sprintf("LIMIT %d OFFSET %d ", pagination.Limit, offset)
 	rows, err := r.pool.Query(ctx, sqlStatement)
 
 	if err != nil {
